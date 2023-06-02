@@ -1,0 +1,16 @@
+{% extends "base_temp.html" %}
+
+{% block content %}
+  <h1>All Bloggers</h1>
+  {% if blogger_list %}
+    <ul>
+      {% for b in blogger_list %}
+      <li>
+        <a href="{{ b.get_absolute_url }}">{{ b.first_name }} {{ b.last_name }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>There are no bloggers available currently.</p>
+  {% endif %}
+{% endblock %}

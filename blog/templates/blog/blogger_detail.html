@@ -1,0 +1,20 @@
+{% extends "base_temp.html" %}
+
+{% block content %}
+  <h1>Blogger: {{ blogger.first_name }} {{ blogger.last_name }}</h1>
+  <h2><strong>Bio</strong></h2>
+  <p>{{ blogger.bio }}</p>
+
+  <div style="margin-left:20px;margin-top:20px">
+    <h4>Blogs List</h4>
+
+    {% for copy in blogger.blog_set.all %}
+      <hr />
+      <ul>
+        <li>
+          <p><a href = "{{ copy.get_absolute_url }}">{{ copy.name }}</a> ({{copy.date_uploaded }})</p>
+        </li>
+      </ul>
+    {% endfor %}
+  </div>
+{% endblock %}

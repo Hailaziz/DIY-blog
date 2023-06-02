@@ -1,0 +1,17 @@
+{% extends "base_temp.html" %}
+
+{% block content %}
+  <h1>Blog List</h1>
+  {% if blogg %}
+    <ul>
+      {% for b in blogg %}
+      <li>
+        <a href="{{ b.get_absolute_url }}">{{ b.name }}</a>
+        ({{b.blogger}})
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>There are no blogs available currently.</p>
+  {% endif %}
+{% endblock %}
