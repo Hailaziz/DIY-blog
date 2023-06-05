@@ -295,4 +295,3 @@ class DeleteBlogView(LoginRequiredMixin, UpdateView):
         blog.is_deleted = True
         blog.save()
         return HttpResponseRedirect(self.get_success_url())
-    

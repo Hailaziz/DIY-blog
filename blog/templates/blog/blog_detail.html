@@ -1,28 +1,26 @@
-{% extends "base_temp.html" %}
+{% extends "base_temp.html" %} {% block content %}
+<h1>Title: {{ blogdetail.name }}</h1>
 
-{% block content %}
-  <h1>Title: {{ blogdetail.name }}</h1>
+<p><strong>Post date:</strong>{{ blogdetail.date_uploaded }}</p>
 
-  <p><strong>Post date:</strong>{{ blogdetail.date_uploaded }}</p>
+<p><strong>Blogger:</strong> {{ blogdetail.blogger }}</p>
+<p><strong>Description:</strong> {{ blogdetail.description }}</p>
 
-  <p><strong>Blogger:</strong> {{ blogdetail.blogger }}</p>
-  <p><strong>Description:</strong> {{ blogdetail.description }}</p>
+<div style="margin-left: 20px; margin-top: 20px">
+  <h4>Comments</h4>
 
-  <div style="margin-left:20px;margin-top:20px">
-    <h4>Comments</h4>
-
-    {% for com in blogdetail.comments_set.all %}
-      <hr />
-      <ul>
-        <li>
-          <p>{{ com.username }} ({{com.date_of_comment }}) : {{com.comment}}</p>
-        </li>
-      </ul>
-    {% endfor %}
-  </div>
-  <div>
-    <p>
-      <a href="{% url 'comment_detail' blogdetail.id %}">Add a comment</a>
-    </p>
-  </div>
+  {% for com in blogdetail.comments_set.all %}
+  <hr />
+  <ul>
+    <li>
+      <p>{{ com.username }} ({{com.date_of_comment }}) : {{com.comment}}</p>
+    </li>
+  </ul>
+  {% endfor %}
+</div>
+<div>
+  <p>
+    <a href="{% url 'comment-detail' blogdetail.id %}">Add a comment</a>
+  </p>
+</div>
 {% endblock %}
