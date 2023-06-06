@@ -1,6 +1,7 @@
 from datetime import date, datetime
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
+from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import Blog, Blogger, Comments, RequestToBeBlogger
 
@@ -267,3 +268,140 @@ class BlogDetailViewTest(TestCase):
     def test_comment_str_representation(self):
         expected_string = "Comment 1"
         self.assertEqual(str(self.comment1), expected_string)
+
+
+class BloggerListViewTest(TestCase):
+
+    def setUp(self):
+        # Initialize the client for making requests
+        self.client = Client()
+
+        # Create a user for each test case
+        self.user1 = User.objects.create_user(username='testuser1', password='testpassword1')
+        self.user2 = User.objects.create_user(username='testuser2', password='testpassword2')
+
+        # Create bloggers associated with each user
+        self.blogger1 = Blogger.objects.create(user=self.user1, first_name='John', last_name='Doe', bio='Test bio 1')
+        self.blogger2 = Blogger.objects.create(user=self.user2, first_name='Jane', last_name='Smith', bio='Test bio 2')
+
+    def test_blogger_list_view(self):
+        # Log in the first user
+        self.client.login(username='testuser1', password='testpassword1')
+
+        url = reverse('bloggers')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'blog/blogger_list.html')
+        self.assertContains(response, self.blogger1.first_name)
+        self.assertContains(response, self.blogger2.first_name)
+
+def test_blogger_list_view_pagination(self):
+    # Create more than paginate_by number of bloggers
+    for i in range(10):
+        timestamp = timezone.now().strftime('%Y%m%d%H%M%S%f')
+        username = f'testuser{i}_{timestamp}'
+        password = f'testpassword{i}'
+        user = User.objects.create_user(username=username, password=password)
+        Blogger.objects.create(user=user, first_name=f'First {i}', last_name=f'Last {i}', bio='Test bio')
+
+    response = self.client.get(reverse('blog:blogger-list'))
+
+    self.assertContains(response, 'First 0')  # Check for the first blogger's name
+    self.assertContains(response, 'Last 4')  # Check for the last blogger's name
+
+    self.assertNotContains(response, 'First 5')  # Should not contain the name of the blogger beyond paginate_by
+    self.assertNotContains(response, 'Last 9')
+
+    self.assertContains(response, 'page 1 of 2')  # Assuming 2 pages with paginate_by = 5
+
+
+
+
+
+class BloggerDetailViewTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        # Set up non-modified objects used by all test methods
+        cls.user = User.objects.create_user(username='testuser', password='testpassword')
+        cls.blogger = Blogger.objects.create(user=cls.user, first_name='John', last_name='Doe', bio='Test bio')
+
+    def setUp(self):
+        # Initialize the client for making requests
+        self.client = Client()
+
+    def test_blogger_detail_view(self):
+        # Log in the user
+        self.client.login(username='testuser', password='testpassword')
+
+        url = reverse('blogger-detail', args=[self.blogger.id])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'blog/blogger_detail.html')
+        self.assertContains(response, self.blogger.first_name)
+
+    def test_blogger_detail_view_not_logged_in(self):
+        url = reverse('blogger-detail', args=[self.blogger.id])
+        response = self.client.get(url)
+
+        # Expecting a redirect to the login page
+        self.assertRedirects(response, f'/accounts/login/?next={url}')
+
+class BloggersBlogsViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Create a user and a blogger for testing
+        cls.user = User.objects.create_user(username='testuser', password='testpassword')
+        cls.blogger = Blogger.objects.create(user=cls.user, first_name='John', last_name='Doe', bio='Test bio')
+
+    def test_bloggers_blogs_view(self):
+        # Create some blogs written by the blogger
+        blog1 = Blog.objects.create(blogger=self.blogger, name='Blog 1', description='Test content 1')
+        blog2 = Blog.objects.create(blogger=self.blogger, name='Blog 2', description='Test content 2')
+
+        # Get the URL for the bloggers' blogs view
+        url = reverse('blogs-by-blogger', kwargs={'pk': self.blogger.pk})
+
+        # Make a GET request to the URL
+        response = self.client.get(url)
+
+        # Assert that the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Assert that the view uses the correct template
+        self.assertTemplateUsed(response, 'blog/blogs_by_blogger.html')
+
+        # Assert that the blogs displayed are written by the specific blogger
+        self.assertContains(response, blog1.name)
+        self.assertContains(response, blog2.name)
+
+        # Assert that the context object contains the correct blogger instance
+        self.assertEqual(response.context['blogger'], self.blogger)
+
+    def test_nonexistent_blogger(self):
+        # Get a non-existent blogger's ID for testing
+        nonexistent_blogger_id = self.blogger.pk + 1
+
+        # Get the URL for the bloggers' blogs view with a non-existent blogger ID
+        url = reverse('blogs-by-blogger', kwargs={'pk': nonexistent_blogger_id})
+
+        # Make a GET request to the URL
+        response = self.client.get(url)
+
+        # Assert that the response status code is 404 (Not Found)
+        self.assertEqual(response.status_code, 404)
+
+    def test_no_blogs_by_blogger(self):
+        # Get the URL for the bloggers' blogs view
+        url = reverse('blogs-by-blogger', kwargs={'pk': self.blogger.pk})
+
+        # Make a GET request to the URL
+        response = self.client.get(url)
+
+        # Assert that the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Assert that the response does not contain any blogs
+        self.assertNotContains(response, 'Blog')
