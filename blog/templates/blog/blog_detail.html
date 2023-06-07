@@ -3,7 +3,7 @@
 
 <p><strong>Post date:</strong>{{ blogdetail.date_uploaded }}</p>
 
-<p><strong>Blogger:</strong> {{ blogdetail.blogger }}</p>
+<p><strong>Blogger:</strong><a href="{% url 'blogs-by-blogger' blog.blogger.pk %}">{{ blogdetail.blogger }}</p>
 <p><strong>Description:</strong> {{ blogdetail.description }}</p>
 
 <div style="margin-left: 20px; margin-top: 20px">
@@ -13,14 +13,19 @@
   <hr />
   <ul>
     <li>
-      <p>{{ com.username }} ({{com.date_of_comment }}) : {{com.comment}}</p>
+      <p>{{ com.username }} ({{com.date_of_comment }}) : {{com.comment}}</p> <a href="{% url 'comment-edit' com.id %}">Edit Comment</a>
+      <a href="{% url 'comment-delete' com.id %}">Delete</a>
     </li>
   </ul>
   {% endfor %}
 </div>
 <div>
-  <p>
-    <a href="{% url 'comment-detail' blogdetail.id %}">Add a comment</a>
-  </p>
+  {% if user.is_authenticated %}
+    <p>
+      <a href="{% url 'comment-detail' blogdetail.id %}">Add a comment</a>
+    </p>
+  {% else %}
+    <p><a href="{% url 'login'%}?next={{request.path}}">Login</a> to add a new comment</p>
+  {% endif %}
 </div>
 {% endblock %}

@@ -29,8 +29,28 @@
 
           <ul class="sidebar-nav">
             {% if user.is_authenticated %} {% if perms.blog.can_approve_request
-            %}
-
+            %} {# Display editor-specific options #}
+            <li><a href="{% url 'list-of-requests' %}">Approve Requests</a></li>
+            {% if user.author %} {# Display author-specific options #}
+            <li><a href="{% url 'create-blog' %}">New Post</a></li>
+            <li>
+              <a href="{% url 'blogs-by-blogger' user.blogger.pk %}"
+                >Edit Posts</a
+              >
+            </li>
+            {% endif %} {% elif user.author %} {# Display author-specific
+            options for non-editors #}
+            <li><a href="{% url 'create-blog' %}">New Post</a></li>
+            <li>
+              <a href="{% url 'blogs-by-blogger' user.blogger.pk %}"
+                >Edit Posts</a
+              >
+            </li>
+            {% else %} {# Display options for regular users #}
+            <li>
+              <a href="{% url 'request-to-be-blogger' %}">Become an Author</a>
+            </li>
+            {% endif %}
             <li>User: {{ user.get_username }}</li>
             <li>
               <a href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
@@ -52,8 +72,8 @@
               {% if page_obj.has_previous %}
               <a
                 href="{{ request.path }}?page={{ page_obj.previous_page_number }}"
-                >previous</a
-              >
+                >previous
+              </a>
               {% endif %}
               <span class="page-current">
                 Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages
@@ -66,7 +86,7 @@
               {% endif %}
             </span>
           </div>
-          {% endblock %}
+          {% endif %} {% endblock %}
         </div>
       </div>
     </div>

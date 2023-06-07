@@ -1,0 +1,11 @@
+{% extends 'base_temp.html' %} {% block title %}<title>Blogger Request</title>{%
+endblock %} {% block content %}
+<h1>Blogger Request</h1>
+{% if message %}
+<p>{{ message }}</p>
+{% else %}
+<form method="post" action="{% url 'request-to-be-blogger' %}">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Submit</button>
+</form>
+{% endif %} {% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base_temp.html" %} {% block content %}
+<ul>
+  {% for b in blogger_requests %}
+  <li>
+    {{ b.user.get_username }} - {{ b.first_name }} {{ b.last_name }} (<a
+      href="{% url 'request-approved' b.pk %}"
+      >Approve</a
+    >)
+  </li>
+  {% empty %}
+  <li>No author requests</li>
+  {% endfor %}
+</ul>
+{% endblock %}
